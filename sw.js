@@ -1,7 +1,6 @@
-const CACHE_NAME = "petal-journal-v1";
+const CACHE_NAME = "petal-journal-v2";
 const APP_SHELL = [
   "./",
-  "./tracker.html",
   "./manifest.webmanifest",
   "./icons/petal-192.svg",
   "./icons/petal-512.svg"
@@ -32,6 +31,6 @@ self.addEventListener("fetch", (event) => {
         caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
       }
       return response;
-    }).catch(() => caches.match("./tracker.html")))
+    }).catch(() => caches.match("./")))
   );
 });
