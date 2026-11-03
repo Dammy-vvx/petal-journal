@@ -4,7 +4,7 @@
   "short_name": "Petal Journal",
   "description": "A personal, local-first cycle journal.",
   "lang": "en",
-  "start_url": "./",
+  "start_url": "./tracker.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
