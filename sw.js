@@ -1,9 +1,10 @@
-const CACHE_NAME = "petal-journal-v2";
+const CACHE_NAME = "petal-journal-v3";
 const APP_SHELL = [
   "./",
+  "./index.html",
   "./manifest.webmanifest",
-  "./icons/petal-192.svg",
-  "./icons/petal-512.svg"
+  "./icons/petal-192.svg?v=3",
+  "./icons/petal-512.svg?v=3"
 ];
 
 self.addEventListener("install", (event) => {
