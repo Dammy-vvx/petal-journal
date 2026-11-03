@@ -1,0 +1,27 @@
+{
+  "id": "./",
+  "name": "Petal Journal",
+  "short_name": "Petal Journal",
+  "description": "A personal, local-first cycle journal.",
+  "lang": "en",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff8fb",
+  "theme_color": "#fcb8da",
+  "icons": [
+    {
+      "src": "./icons/petal-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/petal-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
