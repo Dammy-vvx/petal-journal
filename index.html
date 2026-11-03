@@ -233,13 +233,24 @@ function secCard(){
 function lockView(){
  return`<div class="card tint"><h2>Petal Journal is locked</h2><p class="sub">Enter your passcode to decrypt your data on this device.</p>${lockMsg?`<p class="msg" role="alert">${esc(lockMsg)}</p>`:""}<label for="pw">Passcode</label><input id="pw" type="password" autocomplete="current-password"><div class="mt"><button class="btn" data-act="unlock">Unlock</button></div></div><div class="card"><p class="sub">Forgot your passcode? It cannot be recovered. You can erase the encrypted data and start fresh.</p>${sure?`<button class="btn" data-act="wipe2">Yes, erase everything</button><button class="ghost" data-act="clear0">Cancel</button>`:`<button class="ghost" data-act="wipe1">Erase data</button>`}</div>`}
 async function boot(){
- // Require the local username/password gate whenever the app is opened or refreshed.
- // Keep the last username as a convenience, but never restore an authenticated session.
+ // Restore this device's local session. If encrypted data exists, ask only for its passcode.
+ // The username/password screen is shown again only after an explicit logout or if no session exists.
  const lastUser=localStorage.getItem(SESSION_KEY)||"";
- authDraft={username:lastUser};
- localStorage.removeItem(SESSION_KEY);
- authUser=null;authName="";KEY="petal.v1";KEYOBJ=null;locked=false;pending=null;S=def();
- authMode="login";authMsg="";render();
+ const all=users();
+ KEYOBJ=null;locked=false;pending=null;S=def();
+ authMode="login";authMsg="";
+ if(lastUser && all[lastUser]){
+  authUser=lastUser;
+  authName=all[lastUser].name||lastUser;
+  authDraft={username:lastUser,displayName:authName};
+  KEY="petal.v1.user."+lastUser;
+  let o=null;try{o=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+  if(o&&o.enc){locked=true;pending=o;S=def()}
+  else{S=norm(o);S.appear=S.appear||"light";sel=today()}
+ }else{
+  authUser=null;authName="";KEY="petal.v1";authDraft={username:"",displayName:""};
+ }
+ render();
 }
 function save(){if(locked)return;const k=KEYOBJ;q=q.then(async()=>{try{localStorage.setItem(KEY,k?await enc(k):JSON.stringify(S))}catch(e){}}).catch(()=>{})}
 
