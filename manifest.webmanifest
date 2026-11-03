@@ -4,7 +4,7 @@
   "short_name": "Petal Journal",
   "description": "A personal, local-first cycle journal.",
   "lang": "en",
-  "start_url": "./tracker.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
@@ -13,13 +13,13 @@
   "icons": [
     {
       "src": "./icons/petal-192.svg",
-      "sizes": "192x192",
+      "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
       "src": "./icons/petal-512.svg",
-      "sizes": "512x512",
+      "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
     }
