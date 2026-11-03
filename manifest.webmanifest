@@ -12,13 +12,13 @@
   "theme_color": "#fcb8da",
   "icons": [
     {
-      "src": "./icons/petal-192.svg",
+      "src": "./icons/petal-192.svg?v=3",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
     },
     {
-      "src": "./icons/petal-512.svg",
+      "src": "./icons/petal-512.svg?v=3",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
