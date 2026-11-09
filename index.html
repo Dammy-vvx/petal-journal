@@ -118,7 +118,7 @@ ovulatory:{n:"Ovulatory",l:"O",a:"#E89A91",s:"#FCEBE5",d:"#A84F64",ds:"#4A2B2B",
 luteal:{n:"Luteal",l:"L",a:"#AD83A7",s:"#F0E7F0",d:"#704765",ds:"#3B2B3B",dd:"#CFA9CA",mood:"Calm, muted, grounded.",tip:"The days before the next period. Some people notice mood or energy shifts."}};
 const SYM=["Cramps","Headache","Bloating","Fatigue","Mood shift","Tender breasts","Acne","Cravings"];
 const FLOW=["None","Spotting","Light","Medium","Heavy"];
-const def=()=>({pl:5,starts:[],logs:{},ok:{},fert:false,appear:"light",lockMin:2});
+const def=()=>({pl:5,cl:null,starts:[],logs:{},ok:{},fert:false,appear:"light",lockMin:2});
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 /* date helpers: calendar arithmetic on local dates, never elapsed milliseconds */
@@ -259,7 +259,8 @@ function engine(){
  const s=[...S.starts].sort(),t=today(),lens=[];
  for(let i=1;i<s.length;i++)lens.push({a:s[i-1],b:s[i],n:diff(s[i-1],s[i])});
  const ls=lens.map(x=>x.n),use=ls.length>=7?ls.slice(-6):ls;
- const avg=use.length?use.reduce((a,b)=>a+b,0)/use.length:28;
+ const historyAvg=use.length?use.reduce((a,b)=>a+b,0)/use.length:28;
+ const avg=Number.isFinite(Number(S.cl))&&S.cl!==null?Number(S.cl):historyAvg;
  const L=Math.round(avg),pl=S.pl;
  const sd=use.length>1?Math.sqrt(use.reduce((a,b)=>a+(b-avg)**2,0)/(use.length-1)):0;
  const ov=Math.min(L,Math.max(2,Math.round(avg-14)));
@@ -341,7 +342,7 @@ function startForm(){
 }
 function logForm(){
  const d=draft;
- return`<div class="card"><h3>Bleeding and symptoms</h3><p class="sub">${fmtL(d.date)}</p><p class="lab">Bleeding</p><div class="seg" role="group" aria-label="Bleeding level">${FLOW.map(f=>`<button data-act="flow" data-v="${f}" aria-pressed="${d.flow===f}">${f}</button>`).join("")}</div>
+ return`<div class="card"><h3>Bleeding and symptoms</h3><p class="sub">${fmtL(d.date)}</p><p class="sub">Choose “Spotting” for light traces of blood. Spotting is recorded separately and does not automatically start a new period or change your usual period length.</p><p class="lab">Bleeding</p><div class="seg" role="group" aria-label="Bleeding level">${FLOW.map(f=>`<button data-act="flow" data-v="${f}" aria-pressed="${d.flow===f}">${f}</button>`).join("")}</div>
  <p class="lab">Symptoms</p><div class="seg chips" role="group" aria-label="Symptoms">${SYM.map(f=>`<button data-act="sym" data-v="${f}" aria-pressed="${d.sym.includes(f)}">${f}</button>`).join("")}</div>
  <label for="note">Note</label><textarea id="note">${esc(d.note||"")}</textarea><div class="mt"><button class="btn" data-act="savelog">Save</button><button class="ghost" data-act="close">Cancel</button></div></div>`;
 }
@@ -357,7 +358,7 @@ function vToday(){
   else nx=`In ${D.until} day${D.until>1?"s":""}, about ${fmtL(E.np)} (predicted)`;
   let ov="Available after your next period is logged";
   if(E.od)ov=`About ${fmt(E.od)} (range ${fmt(add(E.od,-E.w))} to ${fmt(add(E.od,E.w))})${E.ov<=E.pl?`. This falls within your period days, so treat it as very uncertain`:""}`;
-  h+=`<div class="card"><dl><div><dt>Last period start</dt><dd>${fmtL(E.last)} (confirmed)</dd></div><div><dt>Next period</dt><dd>${nx}</dd></div><div><dt>Estimated ovulation</dt><dd>${ov}</dd></div><div><dt>Average cycle</dt><dd>${E.avg.toFixed(1)} days, using ${E.L}${E.n?"":" (provisional)"}</dd></div><div><dt>Period length</dt><dd>${E.pl} days</dd></div></dl></div>`;
+  h+=`<div class="card"><dl><div><dt>Last period start</dt><dd>${fmtL(E.last)} (confirmed)</dd></div><div><dt>Next period</dt><dd>${nx}</dd></div><div><dt>Estimated ovulation</dt><dd>${ov}</dd></div><div><dt>Average cycle</dt><dd>${E.L} days${S.cl!==null&&S.cl!==undefined?" (your set estimate)":E.n?" (based on logged cycles)":" (provisional)"}</dd></div><div><dt>Period length</dt><dd>${E.pl} days</dd></div></dl></div>`;
  }
  h+=`<div><button class="btn" data-act="openstart">Log period start</button><button class="ghost" data-act="openlog" data-d="${today()}">Log bleeding and symptoms</button></div>`;
  if(sheet==="start")h+=startForm();if(sheet==="log"&&draft)h+=logForm();
@@ -402,9 +403,10 @@ function vHist(){
 }
 function vSet(){
  return secCard()+`<div class="card"><h2>Prediction preferences</h2><div class="mt"><label for="pl">Usual period length (days)</label><input id="pl" type="number" min="1" max="10" value="${S.pl}" data-chg="pl"></div>
+ <div class="mt"><label for="cl">Usual cycle length (days, from the first day of one period to the first day of the next)</label><input id="cl" type="number" min="15" max="60" value="${S.cl??""}" placeholder="28" data-chg="cl"><p class="sub">Optional. Leave blank to use 28 days until you have cycle history, then let your logged dates calculate your average. Enter a value if you already know your usual cycle length.</p></div>
  <div class="mt"><label><input type="checkbox" data-chg="fert" ${S.fert?"checked":""}> Show a possible fertile window on the calendar</label><p class="sub">An estimate only. It is not contraception advice.</p></div>
  <div class="mt"><label>Appearance</label><p class="sub">Light theme is always on, regardless of your phone settings.</p></div></div>
- <div class="card"><h3>How predictions work</h3><p class="sub">With no history a provisional 28-day cycle is used. With 1 to 2 cycles the mean is used with low confidence. With 3 to 6 cycles the mean of all of them is used. With 7 or more, the most recent 6 are averaged. Unusual lengths are flagged but kept. Ovulation is estimated as average cycle length minus 14 days. The next period is your last start plus the rounded average.</p></div>
+ <div class="card"><h3>How predictions work</h3><p class="sub">A cycle length you enter is used as your estimate. If you leave it blank, 28 days is used until you have logged cycle history. With 1 to 2 cycles the mean is used with low confidence. With 3 to 6 cycles the mean of all of them is used. With 7 or more, the most recent 6 are averaged. Unusual lengths are flagged but kept. Ovulation is estimated as cycle length minus 14 days. The next period is your last start plus the estimated cycle length.</p></div>
  <div class="card"><h3>Privacy</h3><p class="sub">Everything you enter stays in this browser's local storage on this device. Nothing is sent to a server. Clearing your browser data removes it.</p><h3 class="mt">Terms of use</h3><p class="sub">This app provides calendar estimates for personal tracking. It is not medical advice, cannot confirm ovulation or pregnancy, and must not be used for contraception. Speak with a clinician about health concerns.</p></div>
  <div class="card"><h3>Your data</h3>${sure?`<p>This permanently deletes all periods and logs.</p><button class="btn" data-act="clear2">Yes, delete everything</button><button class="ghost" data-act="clear0">Cancel</button>`:`<button class="ghost" data-act="clear1">Clear all data</button>`}</div>`;
 }
@@ -469,6 +471,7 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(
 document.addEventListener("change",async e=>{
  const k=e.target.dataset.chg;if(!k)return;msg="";
  if(k==="pl"){const v=parseInt(e.target.value,10);if(v>=1&&v<=10)S.pl=v;else msg="Period length must be between 1 and 10 days."}
+ else if(k==="cl"){const raw=e.target.value.trim();if(!raw)S.cl=null;else{const v=Number(raw);if(Number.isInteger(v)&&v>=15&&v<=60)S.cl=v;else msg="Cycle length must be between 15 and 60 days, or left blank."}}
  else if(k==="fert")S.fert=e.target.checked;
  else if(k==="appear")S.appear=e.target.value;
  else if(k==="lockMin"){S.lockMin=Number(e.target.value);bump()}
