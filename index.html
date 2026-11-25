@@ -312,7 +312,29 @@ function apply(p){
 function tintFor(p){return ({menstrual:"#FCE4ED",follicular:"#E8D9F8",ovulatory:"#FFE0C2",luteal:"#D6E9FC"})[p]||"#FCE4ED"}
 function tintDeepFor(p){return ({menstrual:"#A82D5B",follicular:"#60368C",ovulatory:"#A84910",luteal:"#1D5E96"})[p]||"#A82D5B"}
 /* ---------- views ---------- */
-let E,D,vp;
+let E,D,vp,magicOpen=false;
+const PHASE_EDU={
+ menstrual:{
+  happening:["The uterus sheds its built-up lining. This is your period.","Oestrogen and progesterone are relatively low at the start of the cycle."],
+  might:["Cramps or lower-back discomfort","Tiredness, headaches or digestive changes","Changes in appetite or energy"],
+  foods:[["Lentils, beans and chickpeas","Provide iron and plant-based protein."],["Spinach and other leafy greens","Contain iron, folate and other nutrients."],["Oranges, guava or berries","Vitamin C helps your body absorb iron from plant foods."]]
+ },
+ follicular:{
+  happening:["After your period, follicles in the ovaries begin to mature.","Oestrogen generally rises, and the uterine lining starts building up again."],
+  might:["Energy or mood changes","Changes in cervical mucus","You may notice very little change at all"],
+  foods:[["Eggs, tofu or dals","Useful sources of protein."],["Whole grains such as oats and millets","Provide fibre and longer-lasting energy."],["Colourful fruits and vegetables","Add fibre, vitamins and minerals to everyday meals."]]
+ },
+ ovulatory:{
+  happening:["A rise in luteinising hormone (LH) triggers the release of an egg.","This usually happens once in a cycle, but timing can vary."],
+  might:["Clear, slippery or stretchy cervical mucus","A brief one-sided pelvic twinge","A change in libido or breast tenderness"],
+  foods:[["Curd or yoghurt","Provides protein and calcium."],["Nuts and seeds","Offer unsaturated fats, fibre and minerals."],["Seasonal fruits and vegetables","An easy way to add fibre and variety."]]
+ },
+ luteal:{
+  happening:["After ovulation, progesterone rises and helps maintain the uterine lining.","If pregnancy does not occur, hormone levels fall and the next period begins."],
+  might:["Bloating or breast tenderness","Acne, cravings or appetite changes","Irritability, fatigue or sleep changes"],
+  foods:[["Curd, milk or fortified alternatives","Provide calcium and protein."],["Oats, brown rice or millets","Complex-carbohydrate options with fibre."],["Bananas, nuts and seeds","Convenient foods that add fibre and useful nutrients."]]
+ }
+};
 function dash(){
  if(!E.last)return null;
  const off=diff(E.last,E.t),day=off+1,over=off>=E.L;
@@ -327,10 +349,17 @@ function ring(){
  return`<div class="ringbox"><svg viewBox="0 0 200 200" role="img" aria-label="Cycle ring showing the four phases">${seg}${mk}</svg><div class="ringc"><span class="lab">Cycle day</span><span class="n">${D?D.day:"-"}</span><span class="sub">${D?(D.over?"cycle length "+E.L:"of about "+E.L):"no data yet"}</span></div></div>`;
 }
 function phaseSel(){
- const k=PH[vp],days=[];for(let d=1;d<=E.L;d++)if(E.phaseOf(d)===vp)days.push(d);
+ const k=PH[vp],info=PHASE_EDU[vp],days=[];for(let d=1;d<=E.L;d++)if(E.phaseOf(d)===vp)days.push(d);
  const rng=days.length?(days.length>1?`Cycle days ${days[0]} to ${days[days.length-1]}`:`Cycle day ${days[0]}`):"Skipped in your current settings";
+ const foods=info.foods.map(([name,why])=>`<li><strong>${name}</strong> — ${why}</li>`).join("");
  return`<div class="card tint"><p class="lab">Explore phases</p><div class="seg" role="group" aria-label="Phase selector">${Object.keys(PH).map(q=>`<button data-act="phase" data-v="${q}" aria-pressed="${q===vp}">${PH[q].n}</button>`).join("")}</div>
- <h3>${k.n} phase</h3><p class="sub">${k.mood} ${rng} on your estimated ${E.L}-day cycle.</p><p>${k.tip}</p>${view?`<button class="ghost" data-act="reset">Back to current phase</button>`:""}</div>`;
+ <h3>${k.n} phase</h3><p class="sub">${k.mood} ${rng} on your estimated ${E.L}-day cycle.</p>
+ <h3 class="mt">What's happening in your body?</h3><ul>${info.happening.map(x=>`<li>${x}</li>`).join("")}</ul>
+ <p class="lab mt">You might notice</p><ul>${info.might.map(x=>`<li>${x}</li>`).join("")}</ul>
+ <p class="sub">Experiences vary. You may notice some, all or none of these.</p>
+ <button class="btn mt" data-act="magic">${magicOpen?"Hide":"✨ Magic Foods"}</button>
+ ${magicOpen?`<div class="card" style="margin-top:12px"><h3>A little food magic</h3><p class="sub">Some nourishing ideas for this part of your cycle:</p><ul>${foods}</ul><p class="sub">These are general food ideas, not proven phase-specific treatments. A varied, balanced diet matters across the whole cycle.</p></div>`:""}
+ ${view?`<button class="ghost" data-act="reset">Back to current phase</button>`:""}</div>`;
 }
 function confTxt(){
  if(!E.last)return"Log the first day of your last period to start predictions. Until then, a provisional 28-day cycle is shown.";
@@ -439,9 +468,10 @@ function act(a,d,el){
  msg="";
  switch(a){
  case"tab":tab=d.v;sheet=null;draft=null;editing=null;break;
- case"phase":view=d.v;break;
- case"reset":view=null;break;
+ case"phase":view=d.v;magicOpen=false;break;
+ case"reset":view=null;magicOpen=false;break;
  case"close":sheet=null;draft=null;break;
+ case"magic":magicOpen=!magicOpen;break;
  case"openstart":sheet="start";draft=null;break;
  case"savestart":{const e=addStart($("#sd").value);if(e)msg=e;else{sheet=null;view=null}break}
  case"openlog":{const l=S.logs[d.d]||{};draft={date:d.d,flow:l.flow||"",sym:[...(l.sym||[])],note:l.note||""};sheet="log";break}
