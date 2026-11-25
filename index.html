@@ -101,6 +101,7 @@ dt{color:var(--tx2)}dd{margin:0;text-align:right;font-weight:500}
 .msg{background:var(--s);border:1px solid var(--a);color:var(--tx);padding:10px 14px;border-radius:2px;margin-bottom:14px}
 label{display:block;margin-bottom:6px;font-weight:500}
 .mt{margin-top:14px}
+.magic-foods{padding-left:24px}.magic-foods li{padding-left:3px}.magic-foods li::marker{color:var(--btn)}.magic-foods strong{color:var(--btn)}
 </style>
 </head>
 <body>
@@ -356,9 +357,9 @@ function phaseSel(){
  <h3>${k.n} phase</h3><p class="sub">${k.mood} ${rng} on your estimated ${E.L}-day cycle.</p>
  <h3 class="mt">What's happening in your body?</h3><ul>${info.happening.map(x=>`<li>${x}</li>`).join("")}</ul>
  <p class="lab mt">You might notice</p><ul>${info.might.map(x=>`<li>${x}</li>`).join("")}</ul>
- <p class="sub">Experiences vary. You may notice some, all or none of these.</p>
+ 
  <button class="btn mt" data-act="magic">${magicOpen?"Hide":"✨ Magic Foods"}</button>
- ${magicOpen?`<div class="card" style="margin-top:12px"><h3>A little food magic</h3><p class="sub">Some nourishing ideas for this part of your cycle:</p><ul>${foods}</ul><p class="sub">These are general food ideas, not proven phase-specific treatments. A varied, balanced diet matters across the whole cycle.</p></div>`:""}
+ ${magicOpen?`<div class="card" style="margin-top:12px"><h3>A little food magic</h3><p class="sub">Some nourishing ideas for this part of your cycle:</p><ul class="magic-foods">${foods}</ul></div>`:""}
  ${view?`<button class="ghost" data-act="reset">Back to current phase</button>`:""}</div>`;
 }
 function confTxt(){
