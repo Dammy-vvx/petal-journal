@@ -352,13 +352,13 @@ function ring(){
 function phaseSel(){
  const k=PH[vp],info=PHASE_EDU[vp],days=[];for(let d=1;d<=E.L;d++)if(E.phaseOf(d)===vp)days.push(d);
  const rng=days.length?(days.length>1?`Cycle days ${days[0]} to ${days[days.length-1]}`:`Cycle day ${days[0]}`):"Skipped in your current settings";
- const foods=info.foods.map(([name,why])=>`<li><strong>${name}</strong> — ${why}</li>`).join("");
+ const foods=info.foods.map(([name,why])=>`<li><strong>${name}</strong> ${why}</li>`).join("");
  return`<div class="card tint"><p class="lab">Explore phases</p><div class="seg" role="group" aria-label="Phase selector">${Object.keys(PH).map(q=>`<button data-act="phase" data-v="${q}" aria-pressed="${q===vp}">${PH[q].n}</button>`).join("")}</div>
  <h3>${k.n} phase</h3><p class="sub">${k.mood} ${rng} on your estimated ${E.L}-day cycle.</p>
  <h3 class="mt">What's happening in your body?</h3><ul>${info.happening.map(x=>`<li>${x}</li>`).join("")}</ul>
  <p class="lab mt">You might notice</p><ul>${info.might.map(x=>`<li>${x}</li>`).join("")}</ul>
  
- <button class="btn mt" data-act="magic">${magicOpen?"Hide":"✨ Magic Foods"}</button>
+ <button class="btn mt" data-act="magic">${magicOpen?"Hide":"Magic Foods"}</button>
  ${magicOpen?`<div class="card" style="margin-top:12px"><h3>A little food magic</h3><p class="sub">Some nourishing ideas for this part of your cycle:</p><ul class="magic-foods">${foods}</ul></div>`:""}
  ${view?`<button class="ghost" data-act="reset">Back to current phase</button>`:""}</div>`;
 }
